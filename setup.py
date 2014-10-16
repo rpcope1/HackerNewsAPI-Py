@@ -1,5 +1,8 @@
 from setuptools import setup
-from HackerNewsAPI import __version__, __author__, __license__
+__author__ = 'Robert P. Cope'
+__version__ = '0.1.0'
+__license__ = 'LGPL v3'
+__date__ = 'October 2014'
 
 setup(name='HackerNewsAPI',
       author=__author__,
