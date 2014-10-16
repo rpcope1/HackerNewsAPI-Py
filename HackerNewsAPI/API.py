@@ -18,7 +18,7 @@ class HackerNewsAPI(object):
     """
 
     API_BASE_URL = "https://hacker-news.firebaseio.com"
-    WAIT_TIME_MS = 20  # Don't flood the server.
+    WAIT_TIME_MS = 50  # Don't flood the server.
 
     def __init__(self):
         hn_logger.info('HackerNewsAPI module instantiated.')
