@@ -2,6 +2,8 @@ __author__ = 'Robert P. Cope'
 import requests
 import logging
 
+from utils import rate_limit
+
 hn_logger = logging.getLogger(__name__)
 if not hn_logger.handlers:
     ch = logging.StreamHandler()
@@ -9,7 +11,6 @@ if not hn_logger.handlers:
     hn_logger.setLevel(logging.INFO)
 
 
-#TODO: Probably best to have everything get data under one call, to reduce duplicate code.
 class HackerNewsAPI(object):
     """
         A simple API for interfacing with the official Hacker News API,
@@ -17,10 +18,23 @@ class HackerNewsAPI(object):
     """
 
     API_BASE_URL = "https://hacker-news.firebaseio.com"
+    WAIT_TIME_MS = 5  # Don't flood the server.
 
     def __init__(self):
         hn_logger.info('HackerNewsAPI module instantiated.')
         self.session = requests.Session()
+
+    @rate_limit(wait_time=WAIT_TIME_MS)
+    def _make_request(self, suburl):
+        """
+        Helper function for making requests
+        :param suburl: The suburl to query
+        :return: Decoded json object
+        """
+        url = "{}/{}".format(self.API_BASE_URL, suburl)
+        response = self.session.get(url)
+        response.raise_for_status()
+        return response.json()
 
     #TODO: Put an assert on item number being an int.
     def get_item(self, item_number):
@@ -48,14 +62,13 @@ class HackerNewsAPI(object):
         :param item_number: an integer number for the HN item requested
         :return: A dictionary with relevant info about the item, if successful.
         """
-        url = "{}/v0/item/{}.json".format(self.API_BASE_URL, item_number)
-        response = self.session.get(url)
+        suburl = "v0/item/{}.json".format(item_number)
         try:
-            response.raise_for_status()
+            item_data = self._make_request(suburl)
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on item request for item {}, with status {}'.format(item_number, e.errno))
             raise e
-        return response.json()
+        return item_data
 
     def get_user(self, user_name):
         """
@@ -73,14 +86,13 @@ class HackerNewsAPI(object):
         :param user_name: the relevant user's name
         :return: A dictionary with relevant info about the user, if successful.
         """
-        url = "{}/v0/user/{}.json".format(self.API_BASE_URL, user_name)
-        response = self.session.get(url)
+        suburl = "v0/user/{}.json".format(user_name)
         try:
-            response.raise_for_status()
+            user_data = self._make_request(suburl)
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on item request for user {}, with status {}'.format(user_name, e.errno))
             raise e
-        return response.json()
+        return user_data
 
     def get_top_stories(self):
         """
@@ -88,28 +100,26 @@ class HackerNewsAPI(object):
         Will raise an requests.HTTPError if we got a non-200 response back.
         :return: A list with the top story item numbers.
         """
-        url = "{}/v0/user/topstories.json".format(self.API_BASE_URL)
-        response = self.session.get(url)
+        suburl = "v0/topstories.json"
         try:
-            response.raise_for_status()
+            top_stories = self._make_request(suburl)
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on getting top stories, with status {}'.format(e.errno))
             raise e
-        return response.json()
+        return top_stories
 
     def get_max_item(self):
         """
         Get the current maximum item number
         :return: The current maximum item number.
         """
-        url = "{}/v0/user/maxitem.json".format(self.API_BASE_URL)
-        response = self.session.get(url)
+        suburl = "v0/maxitem.json"
         try:
-            response.raise_for_status()
+            max_item = self._make_request(suburl)
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on get max item, with status {}'.format(e.errno))
             raise e
-        return response.json()
+        return max_item
 
     def get_recent_updates(self):
         """
@@ -121,11 +131,10 @@ class HackerNewsAPI(object):
 
         :return: A dictionary with relevant info about recent updates.
         """
-        url = "{}/v0/user/updates.json".format(self.API_BASE_URL)
-        response = self.session.get(url)
+        suburl = "v0/updates.json"
         try:
-            response.raise_for_status()
+            updates_data = self._make_request(suburl)
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on get max item, with status {}'.format(e.errno))
             raise e
-        return response.json()
+        return updates_data
