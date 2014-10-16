@@ -1,10 +1,17 @@
 [![Build Status](https://drone.io/github.com/rpcope1/HackerNewsAPI-Py/status.png)](https://drone.io/github.com/rpcope1/HackerNewsAPI-Py/latest)
+[![PyPI version](https://badge.fury.io/py/HackerNewsAPI.svg)](http://badge.fury.io/py/HackerNewsAPI)
 # HackerNewsAPI
 HackerNewsAPI is an unofficial Python implementation of the [Hacker News API](https://github.com/HackerNews/API), that
 utilizes the Python requests packages. The package can be installed via
 
 ```
     python setup.py install
+```
+
+or via
+
+```
+    pip install HackerNewsAPI
 ```
 
 ## Usage
