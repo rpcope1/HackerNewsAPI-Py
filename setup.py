@@ -1,7 +1,8 @@
 from setuptools import setup
 from HackerNewsAPI import __version__, __author__, __license__
 
-setup(author=__author__,
+setup(name='HackerNewsAPI',
+      author=__author__,
       version=__version__,
       packages=['HackerNewsAPI'],
       install_requires=['requests'],

@@ -18,7 +18,7 @@ class HackerNewsAPI(object):
     """
 
     API_BASE_URL = "https://hacker-news.firebaseio.com"
-    WAIT_TIME_MS = 5  # Don't flood the server.
+    WAIT_TIME_MS = 20  # Don't flood the server.
 
     def __init__(self):
         hn_logger.info('HackerNewsAPI module instantiated.')
@@ -37,13 +37,13 @@ class HackerNewsAPI(object):
         return response.json()
 
     #TODO: Put an assert on item number being an int.
-    def get_item(self, item_number):
+    def get_item(self, item_number, raw=False):
         """
-        Get a dictionary with info about the given item number from the Hacker News API.
+        Get a dictionary or object with info about the given item number from the Hacker News API.
         Item can be a poll, story, comment or possibly other entry.
         Will raise an requests.HTTPError if we got a non-200 response back.
 
-        (Possible) response dictionary parameters:
+        (Possible) response parameters:
             "id"        ->  The item's unique id. Required.
             "deleted"   ->	true if the item is deleted.
             "type"      ->	The type of item. One of "job", "story", "comment", "poll", or "pollopt".
@@ -60,6 +60,8 @@ class HackerNewsAPI(object):
             "parts"     ->	A list of related pollopts, in display order.
 
         :param item_number: an integer number for the HN item requested
+        :param raw: (optional): If true, return the raw decoded JSON dict, if False, return a nice object
+                    with keywords as attributes. Default if False.
         :return: A dictionary with relevant info about the item, if successful.
         """
         suburl = "v0/item/{}.json".format(item_number)
@@ -68,14 +70,14 @@ class HackerNewsAPI(object):
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on item request for item {}, with status {}'.format(item_number, e.errno))
             raise e
-        return item_data
+        return item_data if raw else HackerNewsItem(**item_data)
 
-    def get_user(self, user_name):
+    def get_user(self, user_name, raw=False):
         """
-        Get a dictionary with info about the given user from the Hacker News API.
+        Get a dictionary or object with info about the given user from the Hacker News API.
         Will raise an requests.HTTPError if we got a non-200 response back.
 
-        Response dictionary parameters:
+        Response parameters:
             "id'        ->  The user's unique username. Case-sensitive. Required.
             "delay"     ->	Delay in minutes between a comment's creation and its visibility to other users.
             "created"   ->  Creation date of the user, in Unix Time.
@@ -84,6 +86,8 @@ class HackerNewsAPI(object):
             "submitted" ->	List of the user's stories, polls and comments.
 
         :param user_name: the relevant user's name
+        :param raw: (optional): If true, return the raw decoded JSON dict, if False, return a nice object
+                    with keywords as attributes. Default if False.
         :return: A dictionary with relevant info about the user, if successful.
         """
         suburl = "v0/user/{}.json".format(user_name)
@@ -92,7 +96,7 @@ class HackerNewsAPI(object):
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on item request for user {}, with status {}'.format(user_name, e.errno))
             raise e
-        return user_data
+        return user_data if raw else HackerNewsUpdates(**user_data)
 
     def get_top_stories(self):
         """
@@ -121,7 +125,7 @@ class HackerNewsAPI(object):
             raise e
         return max_item
 
-    def get_recent_updates(self):
+    def get_recent_updates(self, raw=True):
         """
         Get the most recent updates on Hacker News
 
@@ -129,6 +133,8 @@ class HackerNewsAPI(object):
             "items"     ->  A list of the most recently update items by item number.
             "profiles"  ->  A list of most recently updated user profiles by user name.
 
+        :param raw: (optional): If true, return the raw dictionary, if False, return a nice object with attrs for
+                    keywords. Default is True.
         :return: A dictionary with relevant info about recent updates.
         """
         suburl = "v0/updates.json"
@@ -137,4 +143,18 @@ class HackerNewsAPI(object):
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on get max item, with status {}'.format(e.errno))
             raise e
-        return updates_data
+        return updates_data if raw else HackerNewsUpdates(**updates_data)
+
+
+class HackerNewsItem(object):
+    def __init__(self, **params):
+        self.__dict__.update(params)
+
+
+class HackerNewsUser(object):
+    def __init__(self, **params):
+        self.__dict__.update(params)
+
+class HackerNewsUpdates(object):
+    def __init__(self, **params):
+        self.__dict__.update(params)

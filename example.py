@@ -19,9 +19,9 @@ print "-"*40
 print
 for item_num in hn_api.get_top_stories():
     story_data = hn_api.get_item(item_num)
-    print "Title: {}".format(story_data.get('title'))
-    print "Submitted by: {}".format(story_data.get('by'))
-    print "Url: {}".format(story_data.get('url'))
-    print "Id: {}".format(story_data.get('id'))
+    print u"Title: {}".format(story_data.title)
+    print u"Submitted by: {}".format(story_data.by)
+    print u"Url: {}".format(story_data.url)
+    print u"Id: {}".format(story_data.id)
 
 print "-"*40
