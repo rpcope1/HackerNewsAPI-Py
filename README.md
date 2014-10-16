@@ -1,3 +1,4 @@
+[![Circle CI](https://circleci.com/gh/rpcope1/HackerNewsAPI-Py.png?style=badge)](https://circleci.com/gh/rpcope1/HackerNewsAPI-Py)
 [![PyPI version](https://badge.fury.io/py/HackerNewsAPI.svg)](http://badge.fury.io/py/HackerNewsAPI)
 # HackerNewsAPI
 HackerNewsAPI is an unofficial Python implementation of the [Hacker News API](https://github.com/HackerNews/API), that
