@@ -23,7 +23,7 @@ api = HackerNewsAPI()
 stories = [api.get_item(item_num) for item_num in api.get_top_stories()]
 ```
 
-Note that the API does have a built in rate-limiter that defaults to 50 milliseconds.
+Note that the API does have a built in rate-limiter that defaults to 250 milliseconds.
 Tests are run by calling
 ```
 python HackerNewsAPI_Test

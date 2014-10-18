@@ -18,7 +18,7 @@ class HackerNewsAPI(object):
     """
 
     API_BASE_URL = "https://hacker-news.firebaseio.com"
-    WAIT_TIME_MS = 50  # Don't flood the server.
+    WAIT_TIME_MS = 250  # Don't flood the server.
 
     def __init__(self):
         hn_logger.info('HackerNewsAPI module instantiated.')
@@ -36,12 +36,13 @@ class HackerNewsAPI(object):
         response.raise_for_status()
         return response.json()
 
-    #TODO: Put an assert on item number being an int.
     def get_item(self, item_number, raw=False):
         """
         Get a dictionary or object with info about the given item number from the Hacker News API.
         Item can be a poll, story, comment or possibly other entry.
-        Will raise an requests.HTTPError if we got a non-200 response back.
+        Will raise an requests.HTTPError if we got a non-200 response back. Will raise a ValueError
+        if a item_number that can not be converted to int was passed in, or the server has no
+        information for that item number.
 
         (Possible) response parameters:
             "id"        ->  The item's unique id. Required.
@@ -64,12 +65,16 @@ class HackerNewsAPI(object):
                     with keywords as attributes. Default if False.
         :return: A dictionary with relevant info about the item, if successful.
         """
+        if not isinstance(item_number, int):
+            item_number = int(item_number)
         suburl = "v0/item/{}.json".format(item_number)
         try:
             item_data = self._make_request(suburl)
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on item request for item {}, with status {}'.format(item_number, e.errno))
             raise e
+        if not item_data:
+            raise ValueError('Item id {} not found!'.format(item_number))
         return item_data if raw else HackerNewsItem(**item_data)
 
     def get_user(self, user_name, raw=False):
@@ -96,6 +101,8 @@ class HackerNewsAPI(object):
         except requests.HTTPError as e:
             hn_logger.exception('Faulted on item request for user {}, with status {}'.format(user_name, e.errno))
             raise e
+        if not user_data:
+            raise ValueError('User name {} not found, or no data!'.format(user_name))
         return user_data if raw else HackerNewsUpdates(**user_data)
 
     def get_top_stories(self):
@@ -155,6 +162,11 @@ class HackerNewsUser(object):
     def __init__(self, **params):
         self.__dict__.update(params)
 
+
 class HackerNewsUpdates(object):
     def __init__(self, **params):
         self.__dict__.update(params)
+
+if __name__ == "__main__":
+    api = HackerNewsAPI()
+    print api.get_item(8863, raw=True)
