@@ -2,6 +2,7 @@ __author__ = 'Robert P. Cope'
 from functools import wraps
 import time
 
+
 #TODO: Does this need thread safety?
 def rate_limit(wait_time=10):
     wait_time /= 1000.0  # Convert from ms to s.

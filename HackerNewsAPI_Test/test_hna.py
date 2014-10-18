@@ -7,6 +7,7 @@ import traceback
 
 from expected_data import *
 
+
 class HackerNewsAPIBasicTests(unittest.TestCase):
     def test_getitem(self):
         try:
@@ -52,7 +53,6 @@ class HackerNewsAPIBasicTests(unittest.TestCase):
         except Exception as e:
             traceback.print_exc()
             self.fail("Faulted with incorrect exception '{}' on get_item for garbage test user".format(e))
-
 
     def test_gettopstories(self):
         try:
